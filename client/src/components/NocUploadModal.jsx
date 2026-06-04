@@ -215,29 +215,6 @@ function NocUploadModal({ mission, open, onClose }) {
     if (nextFile) prepareFile(nextFile);
   }
 
-  function handleSubmit() {
-    if (submissionClosed) {
-      setMessage('This NOC cannot be updated right now.');
-      return;
-    }
-    if (!file && !preview) {
-      setMessage('Choose a file before uploading.');
-      return;
-    }
-    if (submissionClosed) {
-      setMessage('Deadline passed. Submission is closed.');
-      return;
-    }
-
-    const chosen = file || { name: current.data?.fileName || 'signed-noc.pdf' };
-    const submitProgress = [10, 26, 42, 58, 74, 88, 100];
-    if (timerRef.current) window.clearInterval(timerRef.current);
-    setBusy(true);
-    setProgress(submitProgress[0]);
-    let step = 0;
-
-
-
   const submittedAtText = latestSubmittedAt ? formatClock(latestSubmittedAt) : '—';
   const deadlineText = current.dueDate ? `Due ${compactDate(current.dueDate)}` : 'No deadline set';
 

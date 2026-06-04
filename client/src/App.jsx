@@ -89,7 +89,7 @@ function useAuthBootstrap() {
     return () => { cancelled = true; };
   }, []);
 
-  return { user, authLoaded, bootError };
+  return { user, setUser, authLoaded, bootError };
 }
 
 function deriveDisplayName(selectedRole, email) {
@@ -108,7 +108,7 @@ function deriveDisplayName(selectedRole, email) {
 }
 
 function App() {
-  const { user, authLoaded, bootError } = useAuthBootstrap();
+  const { user, setUser, authLoaded, bootError } = useAuthBootstrap();
   const navigate = useNavigate();
   const location = useLocation();
 

@@ -24,9 +24,12 @@ function LoginPage({ onLogin }) {
     setLoading(true);
     try {
       const data = await apiLogin(email, password);
+      if (!data?.token || !data?.user) {
+        throw new Error('Login response was incomplete');
+      }
       sessionStorage.setItem('samagama-token', data.token);
       sessionStorage.setItem('samagama-user-id', data.user._id);
-      onLogin(data.user.role, email, data.user);
+      onLogin(data.user.role, data.user.email || email, data.user);
     } catch (err) {
       setError(err.message || 'Invalid credentials. Please try again.');
     } finally {

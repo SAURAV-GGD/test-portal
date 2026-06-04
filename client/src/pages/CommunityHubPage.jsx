@@ -480,7 +480,7 @@ function CommunityHubPage() {
     setReplyOpen(null);
   }
 
-  function handleAskSubmit(event) {
+  async function handleAskSubmit(event) {
     event.preventDefault();
     if (!draft.title.trim() || !draft.description.trim()) return;
 

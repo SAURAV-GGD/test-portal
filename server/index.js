@@ -300,6 +300,15 @@ app.get('/api/faq', (req, res) => {
   res.json(faqData);
 });
 
+app.get('/api/faqs', (req, res) => {
+  res.json(faqData.map((item, index) => ({
+    id: item.id || index + 1,
+    q: item.q,
+    a: item.a,
+    cat: item.cat,
+  })));
+});
+
 app.get('/api/announcements', (req, res) => {
   const audience = String(req.query.audience || 'All Students').trim();
   const status = String(req.query.status || '').trim();

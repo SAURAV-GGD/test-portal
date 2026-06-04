@@ -2,3 +2,7 @@ node_modules
 dist
 .env
 .DS_Store
+.env
+server/.env
+*_REPORT.md
+server/uploads/

@@ -1,15 +1,35 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_BASE = import.meta?.env?.VITE_API_URL || '';
+
+async function readJsonResponse(response) {
+  const text = await response.text();
+  if (!text.trim()) return null;
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
+}
 
 // ── Auth ──────────────────────────────────────────────────────────
 export async function apiLogin(email, password) {
-  const res = await fetch(`${API_BASE}/api/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Login failed');
-  return data; // { token, user }
+  try {
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: normalizedEmail, password }),
+    });
+    const data = await readJsonResponse(res);
+    if (!res.ok) throw new Error(data?.error || data?.message || 'Login failed');
+    if (!data || typeof data !== 'object') throw new Error('Login response was empty');
+    return data; // { token, user }
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Failed to fetch') {
+      throw new Error('Unable to reach the server. Please try again.');
+    }
+    throw error;
+  }
 }
 
 export async function apiRegister(payload) {
@@ -18,7 +38,7 @@ export async function apiRegister(payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  const data = await res.json();
+  const data = await readJsonResponse(res);
   if (!res.ok) throw new Error(data.error || 'Registration failed');
   return data;
 }
@@ -29,7 +49,7 @@ export async function apiGetMe() {
   const res = await fetch(`${API_BASE}/api/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  const data = await res.json();
+  const data = await readJsonResponse(res);
   if (!res.ok) throw new Error(data.error || 'Failed to get profile');
   return data; // { user }
 }
@@ -110,7 +130,8 @@ export async function markAllAnnouncementsRead(userId) {
 // ── FAQs ──────────────────────────────────────────────────────────
 export async function fetchFaq() {
   const res = await fetch(`${API_BASE}/api/faqs`);
-  return res.json();
+  const data = await readJsonResponse(res);
+  return Array.isArray(data) ? data : [];
 }
 
 // ── Doubts ────────────────────────────────────────────────────────
@@ -228,7 +249,8 @@ export async function fetchLeaderboard(period = 'all') {
   const res = await fetch(`${API_BASE}/api/leaderboard?period=${encodeURIComponent(period)}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
-  return res.json();
+  const data = await readJsonResponse(res);
+  return Array.isArray(data) ? data : [];
 }
 
 export async function fetchMyRank() {
@@ -237,7 +259,8 @@ export async function fetchMyRank() {
   const res = await fetch(`${API_BASE}/api/leaderboard/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  return res.json();
+  const data = await readJsonResponse(res);
+  return data && typeof data === 'object' ? data : { rank: null, spurtiPoints: 0 };
 }
 
 // ── Teams ─────────────────────────────────────────────────────────
